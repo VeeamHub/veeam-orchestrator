@@ -9,7 +9,7 @@ Documentation and usage instructions can be found with each script.
 
 ## ✍ Contributions
 
-We welcome contributions from the community! We encourage you to create [issues](https://github.com/VeeamHub/powershell/issues/new/choose) for Bugs & Feature Requests and submit Pull Requests for adding/updating scripts. For more detailed information, refer to our [Contributing Guide](CONTRIBUTING.md).
+We welcome contributions from the community! We encourage you to create [issues](https://github.com/VeeamHub/veeam-orchestrator/issues/new/choose) for Bugs & Feature Requests and submit Pull Requests for adding/updating scripts. For more detailed information, refer to our [Contributing Guide](CONTRIBUTING.md).
 
 ## 🤝🏾 License
 
@@ -17,4 +17,4 @@ We welcome contributions from the community! We encourage you to create [issues]
 
 ## 🤔 Questions
 
-If you have any questions or something is unclear, please don't hesitate to [create an issue](https://github.com/VeeamHub/powershell/issues/new/choose) and let us know!
+If you have any questions or something is unclear, please don't hesitate to [create an issue](https://github.com/VeeamHub/veeam-orchestrator/issues/new/choose) and let us know!
