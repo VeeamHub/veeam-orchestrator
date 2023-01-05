@@ -16,7 +16,7 @@ Write-Host "VM RAM:" $VMram "MB"
 Write-Host "Set AWS Info"
 
 #Please Update the aws-info.csv for your settings
-$awsCSV = "C:\VDRO\Scripts\aws-info.csv" #CSV File to read from.
+$awsCSV = "C:\VRO\Scripts\aws-info.csv" #CSV File to read from.
 $awsInfo =Import-Csv $awsCSV
 
 $Env:AWS_ACCESS_KEY_ID=$awsInfo.accessKey

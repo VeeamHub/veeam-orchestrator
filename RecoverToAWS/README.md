@@ -1,4 +1,4 @@
-# Automated Veeam Recovery Orchestrator Recovery to AWS 
+# Veeam Recovery Orchestrator - Recover to AWS 
 
 ## Author
 
@@ -6,7 +6,7 @@ Marty Williams (@skitch210)
 
 ## Function
 
-This script is designed to help automate the recovery of VMs in a backup job and Orchestrator Recovery Plan to AWS
+This script is designed to help automate the recovery of VMs in a backup job and Recovery Orchestrator Plan to AWS
 
 
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
@@ -24,7 +24,8 @@ This script is designed to help automate the recovery of VMs in a backup job and
 
 ## Requirements
 
-* Veeam Backup & Replication 11a or later
+* Veeam Backup & Replication v11a or later
+* Veeam Recovery Orchestrator v5 or later
 * Install AWS CLI
   * Configure AWS CLI
 
@@ -52,7 +53,7 @@ This script is designed to help automate the recovery of VMs in a backup job and
 
 ## Additional Information
 
-Rename aws-info.csv.template to aws-info.csv and place in a C:\VDRO\Scripts folder on Veeam BNR server
+Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\Scripts folder on Veeam BNR server
 
 Fill in for your environment - accessKey, secretKey,region, so on
 
