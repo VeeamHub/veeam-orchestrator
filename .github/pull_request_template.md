@@ -17,7 +17,9 @@ Fixes # (issue)
 
 ### How Has This Been Tested?
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce, or provide screenshots. Please also list any relevant details for your test configuration.
+
+Sucessful execution will need to be demostrated to the repository admins if you are a Veeam Employee.
 
 ### Checklist (check all applicable):
 
