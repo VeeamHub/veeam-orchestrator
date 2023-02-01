@@ -20,6 +20,7 @@ This script is designed to help automate the recovery of VMs in a backup job and
 
 * Linux GPT disks are not supported on AWS, neeed to convert to MPR
 * VM IP addresses are not adjusted for running in AWS
+    * The last step in the strict creates a CSV file with server name and IP address that can be used for mass DNS updates
 
 
 ## Requirements
