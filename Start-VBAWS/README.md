@@ -1,4 +1,4 @@
-# Automated Veeam DR Orchestrator Recovery to AWS 
+# Automated Veeam Orchestrator Power on VB-AWS Appliance 
 
 ## Author
 
@@ -6,25 +6,26 @@ Marty Williams (@skitch210)
 
 ## Function
 
-This script is designed to help automate the recovery of VMs in a backup job and Orchestrator Recovery Plan to AWS
+This script is designed to help automate the power on of a Veeam Backup for AWS Appliance after DR Recovery of workloads to EC2
 
 
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
 
-* Read look over the AWS Hardware compatability for recovery
+* Read look over the Veeam Backup for AWS documentation
 * Fully understand what the script is doing
 * Test the script in a lab environment
-* Understand how Veeam Restore to AWS works
+* You need to have previously deployed the VBAWS Appliance into your VPC and have configured policies
+    * This is internded to be a part of an overall DR/Migration strategy and pre-planning is key
 
 ## Known Issues
 
-* Linux GPT disks are not supported on AWS, neeed to convert to MPR
-* VM IP addresses are not adjusted for running in AWS
+* None currently
 
 
 ## Requirements
 
 * Veeam Backup & Replication 11a or later
+* Veeam Backup for AWS Appliance deployed
 * Install AWS CLI
   * Configure AWS CLI
 
@@ -52,16 +53,9 @@ This script is designed to help automate the recovery of VMs in a backup job and
 
 ## Additional Information
 
-Rename aws-info.csv.template to aws-info.csv and place in a C:\VDRO\Scripts folder on Veeam BNR server
+Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\Scripts folder on Veeam BNR server
 
 Fill in for your environment - accessKey, secretKey,region, so on
 
 In the Orchestration plan - Plan Steps
-* Add a Step Parameter
-    Name has to be VMName
-    Text type with Default value = %source_vm_name%
-
-
-A tag is added to the EC2 instance for auto backup by VB-AWS
-  Key=backup
-  Value=recover
+* This is best placed in a Post Plan Step after performing a recovery to AWS
