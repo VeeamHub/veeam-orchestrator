@@ -111,14 +111,13 @@ Write-Host "AWS Private IP: " $restored.Reservations.Instances.PrivateIpAddress
 
 $dnsFile = "C:\VRO\Scripts\dnsinfo.csv" #CSV File to write server and IP into.
 
-$dnsInfo = @{}
-{
-    $dnsInfo | Add-Member -Type NoteProperty -Name VmName -Value $VMName #Set VmName attribute
-    $dnsInfo | Add-Member -Type NoteProperty -Name IP -Value $restored.Reservations.Instances.PrivateIpAddress #Set IP value
-    
-    $dnsInfo | Export-Csv -Path $dnsFile -Append -NoTypeInformation
-    Write-Host $dnsInfo
-    Write-Host "`n"
-}
+$dnsFile = "C:\VRO\Scripts\dnsinfo.csv" #CSV File to write server and IP into.
+
+# Build aray to create CSV file entries for DNS updates
+$dnsInfo = @(
+    [pscustomobject]@{Server=$VMName;IP=[string]$restored.Reservations.Instances.PrivateIpAddress}
+)
+
+$dnsInfo | Export-Csv -Path $dnsFile -Append -NoTypeInformation
 
 Write-Host "Data written to C:\VRO\Scripts\dnsinfo.csv"
