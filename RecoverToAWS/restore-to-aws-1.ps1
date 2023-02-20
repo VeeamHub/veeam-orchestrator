@@ -1,5 +1,9 @@
 param([string]$VMName)
 
+# Make sure there is no dnsinfo.csv left over from previous recovery testing
+Write-Host "Cleaning up files"
+Remove-Item "C:\VRO\Scripts\dnsinfo.csv"
+
 Write-Host $VMName
 
 $cTime = "CreationTime"
