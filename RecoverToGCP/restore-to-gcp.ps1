@@ -1,6 +1,5 @@
-#param([string]$VMName)
+param([string]$VMName)
 
-$VMName = "skitch-u20-3"
 Write-Host $VMName
 
 $cTime = "CreationTime"
@@ -23,16 +22,23 @@ foreach ($disk in $VMdisk){
 Write-Host "VolumeInfo:" $VolumeConfig.DiskName "is of type:" $VolumeConfig.DiskType
 
 
-Write-Host "Set GPC Info"
-#Set GPC Zone
+Write-Host "Set GCP Info"
+#Please Update the gcp-info.csv for your settings
+$gcpCSV = "C:\VRO\Scripts\gcp-info.csv" #CSV File to read from.
+$gcpInfo =Import-Csv $gcpCSV
 
-$account = Get-VBRGoogleCloudComputeAccount -Name "veeamsrv"
-$computeregion = Get-VBRGoogleCloudComputeRegion -Account $account -Name "US-EAST5"
-$computezone = Get-VBRGoogleCloudComputeZone -Region $computeregion -Name "us-east5-a"
-$vpc = Get-VBRGoogleCloudComputeVPC -Account $account -Name "skitch-gpc"
-$subnet = Get-VBRGoogleCloudComputeSubnet -Region $computeregion -VPC $vpc -Name "skitch-gpc-sub1"
+#Set GPC Information
+$account = Get-VBRGoogleCloudComputeAccount -Name $gcpInfo.account
+$computeregion = Get-VBRGoogleCloudComputeRegion -Account $account -Name $gcpInfo.region
+$computezone = Get-VBRGoogleCloudComputeZone -Region $computeregion -Name $gcpInfo.zone
+$vpc = Get-VBRGoogleCloudComputeVPC -Account $account -Name $gcpInfo.VPC
+$subnet = Get-VBRGoogleCloudComputeSubnet -Region $computeregion -VPC $vpc -Name $gcpInfo.subnet
 
+
+Write-Host "Account:" $account.Name
 Write-Host "Zone:" $computezone
+Write-Host "VPC:" $vpc
+Write-Host "Subnet:" $subnet
 
 
 Write-Host "Matching equivelant compute machine type"
@@ -44,8 +50,6 @@ $machType = $machine | ConvertFrom-Json
 
 $instancetype = Get-VBRGoogleCloudComputeInstanceType -Zone $computezone -Name $machType[0].name
 
-# $diskconfig = New-VBRGoogleCloudComputeDiskConfiguration -DiskName "srv20.vhdx" -DiskType StandardPersistent
-
 Write-Host "Instance Type :" $instancetype
 
 $label = New-VBRGoogleCloudComputeLabel -Key "backup" -Value "restore"
@@ -53,15 +57,12 @@ $label = New-VBRGoogleCloudComputeLabel -Key "backup" -Value "restore"
 
 #Set Proxy Appliance Config
 $ProxySize = Get-VBRGoogleCloudComputeInstanceType -Zone $computezone -Name $gcpInfo.prx
-$ProxyConfig = New-VBRGoogleCloudComputeProxyAppliance -InstanceType $ProxySize -Subnet $prxSubnet -RedirectorPort 443
+$ProxyConfig = New-VBRGoogleCloudComputeProxyAppliance -InstanceType $ProxySize -Subnet $subnet -RedirectorPort 443
 Write-Host "ProxyConfig: " $ProxyConfig.InstanceType.Name
 
 $restore = Start-VBRVMRestoreToGoogleCloud -RestorePoint $restorepoint -Zone $computezone -InstanceType $instancetype `
 -VMName $VMname -DiskConfiguration $VolumeConfig -Subnet $subnet -Reason "Data recovery" `
--ProxyAppliance -GoogleCloudLabel $label
-
-
-
+-ProxyAppliance $ProxyConfig -GoogleCloudLabel $label
 
 Write-Host "Recovering" $VMName
 
@@ -71,7 +72,7 @@ Write-Host "Restore Session ID: " $restore.Id
 $ErrorActionPreference = 'SilentlyContinue'
 do {
     Write-Host "checking for Instance"
-    $instRecovered = gcloud compute instances list --filter="name=('skitch-u20-3')"
+    $instRecovered = gcloud compute instances list --filter="name=$VMname"
         Start-Sleep -Seconds 15
 } until ($instRecovered -ne $null)
 $ErrorActionPreference = 'Continue'
@@ -80,7 +81,7 @@ $ErrorActionPreference = 'Continue'
 # Wait loop until Instance is Running
 do {
     Write-Host "checking state"
-    $instStatus = gcloud compute instances describe "skitch-u20-1" --format="json"
+    $instStatus = gcloud compute instances describe $VMname --format="json"
     $instState = $instStatus | ConvertFrom-Json
     Start-Sleep -Seconds 15
 } until ($instState.status -eq "RUNNING")
@@ -88,7 +89,7 @@ do {
 
 Write-Host "IP: " $instState.networkInterfaces.networkIP
 
-$dnsFile = "C:\VRO\Scripts\dnsinfo.csv" #CSV File to write server and IP into.
+$dnsFile = "C:\VRO\Scripts\gpc-dnsinfo.csv" #CSV File to write server and IP into.
 
 # Build aray to create CSV file entries for DNS updates
 $dnsInfo = @(
