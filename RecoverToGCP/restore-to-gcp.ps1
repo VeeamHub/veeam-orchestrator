@@ -71,7 +71,7 @@ Write-Host "Restore Session ID: " $restore.Id
 # Wait loop until restore is complete
 $ErrorActionPreference = 'SilentlyContinue'
 do {
-    Write-Host "checking for Instance"
+    # Write-Host "checking for Instance"
     $instRecovered = gcloud compute instances list --filter="name=$VMname"
         Start-Sleep -Seconds 15
 } until ($instRecovered -ne $null)
