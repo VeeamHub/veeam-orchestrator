@@ -28,18 +28,32 @@ This script is designed to help automate the recovery of VMs in a backup job and
 
 * Veeam Backup & Replication v11a or later
 * Veeam Recovery Orchestrator v5 or later
-* Install gcloud (Google Cloud Platform CLI)
+* Install gcloud (Google Cloud Platform CLI) = On the VBR server
+  * https://cloud.google.com/sdk/docs/install
   * Configure gcloud cli to run via scripting
+    * Edit Environment Variables - 
+        Path settings:
+          %path of install%\google-cloud-sdk\bin
+          %path of install%\google-cloud-sdk.staging\bin
 
-  GCP CLI needs to be installed on Veeam BNR server
-  * 
+        PathExt:
+          Add ;.PY
 
+        Environment Variables:
+          Add CLOUDSDK_CONFIG and value of a directory to store config file database in (needs to be accesible IIS VRO app)
 
 ## Additional Information
 
 Rename gcp-info.csv.template to gcp-info.csv and place in a C:\VRO\Scripts folder on Veeam BNR server
 
-Fill in for your environment - account,region,zone,VPC,subnet,prx
+Fill in for your environment - 
+  account - GCP account name in VBR
+  region - GCP region you want to recover into
+  zone - GPC zone in that region
+  VPC - GPC VPC to recover into
+  subnet - GPC subnet in that VPC
+  prx - GPC instance type to use as the Veeam Proxy instance
+  vbgpc - Veeam Backup for GPC Instance (if already built for preotecting restored VMs in GPC)
 
 In the Orchestration plan - Plan Steps
 * Add a Step Parameter
