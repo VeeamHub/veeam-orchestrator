@@ -1,4 +1,4 @@
-# Veeam Recovery Orchestrator - Add a Tag and Value to recovered VM in Azure
+# Veeam Recovery Orchestrator - Start Veeam Backup for Azure VM
 
 ## Author
 
@@ -6,7 +6,7 @@ Marty Williams (@skitch210)
 
 ## Function
 
-This script is designed to add a tag and value to a recovered VM in Azure that was recovered with the normal VRO Azure recovery
+This script is designed to power on a previsely deployed Veeam Backup for Azure VM
 
 
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
@@ -14,11 +14,11 @@ This script is designed to add a tag and value to a recovered VM in Azure that w
 * Read the Veeam Recovery Orchestrator User Guide
 * Fully understand what the script is doing
 * Test the script in a lab environment
-* Understand how Veeam Restore to Azure works
+* Understand how Veeam Backup for Azure works
 
 ## Known Issues
 
-None currrently
+Veeam Backup for Azure needs to be configured and in a powered off status. A backup policy needs to be created to backup VMs with a policy to protect systems with the tag that was added by the AddTag script
 
 ## Requirements
 
