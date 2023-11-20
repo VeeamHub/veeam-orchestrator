@@ -40,6 +40,8 @@ Veeam Backup for Azure needs to be configured and in a powered off status. A bac
     
 ## Additional Information
 
+Need to place azure-info.csv.template on your Veeam BNR server in a C:\VRO\Scripts\Azure folder.
+Rename to C:\VRO\Scripts\Azure\azure-info.csv
 Fill in for your environment - resourceGroup,applicationID,secretValue,tenatID,vbAzureVM
 
 In the Orchestration plan - Plan Steps
