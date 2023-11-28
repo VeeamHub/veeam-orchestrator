@@ -18,7 +18,7 @@ This script is designed to place SOBR Performance Extent into Maintenance Mode i
 
 ## Known Issues
 
-This version only works with a SOBR with 1 Performance Extent
+This version is not writing all of the Write Host out to VRO for documentation
 
 ## Requirements
 
