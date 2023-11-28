@@ -18,7 +18,7 @@ This script is designed to take an extent out of maintenance mode after restore 
 
 ## Known Issues
 
-This version only works with a SOBR with 1 Performance Extent
+This version is not writing all of the Write Host lines out to VRO for documentation
 
 ## Requirements
 
