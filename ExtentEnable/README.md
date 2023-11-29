@@ -27,7 +27,7 @@ This version is not writing all of the Write Host out to VRO for documentation
     
 ## Additional Information
 
-Need to place vbr-info.csv.template on your Veeam BNR server in a C:\VRO\Scripts\VBR folder.
+Need to place vbr-info.csv.template on your Veeam Orchestrator server in a C:\VRO\Scripts\VBR folder.
 Rename to C:\VRO\Scripts\VBR\vbr-info.csv
 Fill in for your environment - vbrserver,repo
 
