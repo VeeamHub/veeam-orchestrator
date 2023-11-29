@@ -26,7 +26,7 @@ Veeam Backup for Azure needs to be configured and in a powered off status. A bac
 * Veeam Recovery Orchestrator v6 or later
 * Veeam Backup for Azure VM deployed in Azure Account and configured
 * Install Azure CLI
-  * Azure CLI needs to be installed on Veeam BNR server
+  * Azure CLI needs to be installed on Veeam Orchestrator server
   * For Azure CLI install:
     Documentation:
 	  https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli
@@ -40,7 +40,7 @@ Veeam Backup for Azure needs to be configured and in a powered off status. A bac
     
 ## Additional Information
 
-Need to place azure-info.csv.template on your Veeam BNR server in a C:\VRO\Scripts\Azure folder.
+Need to place azure-info.csv.template on your Veeam Orchestrator server in a C:\VRO\Scripts\Azure folder.
 Rename to C:\VRO\Scripts\Azure\azure-info.csv
 Fill in for your environment - resourceGroup,applicationID,secretValue,tenatID,vbAzureVM
 
