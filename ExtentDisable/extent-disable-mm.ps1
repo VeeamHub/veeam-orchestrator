@@ -9,33 +9,33 @@ Write-Host "SOBR selected: $($vbrInfo.repo)"
 # Get the SOBR defined in csv file
 $scaleoutrepository = Get-VBRBackupRepository -Scaleout -Name $vbrInfo.repo
 
+If ($null -eq $scaleoutrepository) {throw "no repository found. Please double-check vbr-info.csv"}
+
 Write-Host "Capacity tier selected: $($scaleoutrepository.CapacityExtent.Repository.Name)"
 
 # Get the Performance Extents from the SOBR
 $extent = Get-VBRRepositoryExtent -Repository $scaleoutrepository
 
-Write-Host "Extent Status: $($extent[0].Status)"
+Write-Host "Number of Perfomance Extents: $($extent.Count)"
 
 # Loop through the extents and write back current status
-for ($i=0; $i -lt $extent.Length; $i++)
-{
-   Write-Host "Extent: $($extent.Name) is $($extent[$i].Status)"
-}
-
-# Loop through Extents and remove Maintenance Mode
-for ($a=0; $a -lt $extent.Length; $a++)
-{
-    $extentMM = Disable-VBRRepositoryExtentMaintenanceMode -Extent $extent[$a]
-}
+foreach($perfExt in $extent) {
+   Write-Host "Checking Extent: " $perfExt.Name
+   Write-Host "Extent Status: " $perfExt.Status
+ 
+   $extentMM = Disable-VBRRepositoryExtentMaintenanceMode -Extent $perfExt
+ 
+   Write-Output "Enable maintenance mode: " $extentMM.Result
+ }
 
 # Get status of Extents
 $extentSts = Get-VBRRepositoryExtent -Repository $scaleoutrepository
 
 # Loop through Extents and write back current status
-for ($b=0; $b -lt $extent.Length; $b++)
-{
-   Write-Host "Extent: $($extent.Name) is $($extentSts[$b].Status)"
-}
+foreach($perfsts in $extentsts) {
+   Write-Host "Checking Extent: " $perfsts.Name
+   Write-Host "Extent Status: " $perfsts.Status
+ }
 
 # Disconnect from Backup server
 Disconnect-VBRServer
