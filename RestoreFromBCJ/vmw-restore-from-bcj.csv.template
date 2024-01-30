@@ -1,0 +1,2 @@
+host,pool,datastore,folder,network,backupcopyjobname
+esx-host,resource-pool,datastore,folder,network,backupcopyjob
