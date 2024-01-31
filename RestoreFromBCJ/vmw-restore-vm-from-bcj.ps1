@@ -1,8 +1,10 @@
 param([string]$VMName) #Accept variable VM name from Orchestrator
 
-#Set to recovery with altnernat VM name - For Testing Purposes.
+#Alternate VM Recovery Mode - Typically used for testing should the original VM still exist in the environment
 $extendedName = "_recovered" #COMMENT THIS LINE FOR RECOVERY WITH ORIGINAL VM NAME.
 $recoveryVMName = $VMName + $extendedName #COMMENT THIS LINE FOR RECOVERY WITH ORIGINAL VM NAME.
+
+#Original VM Recovery Mode
 #$recoveryVMName = $VMName #UNCOMMENT THIS LINE FOR RECOVERY WITH ORIGINAL VM NAME.
 
 Write-Host $VMName
