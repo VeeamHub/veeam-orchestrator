@@ -1,0 +1,2 @@
+user,passwd,server,network,nType
+vcenter-user,Password,fqdn vcenter,Network,Vmxnet3
