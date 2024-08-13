@@ -92,7 +92,7 @@ $ProxyConfig = New-VBRAmazonEC2ProxyAppliance -InstanceType $ProxyEc2Size -Subne
 Write-Host "ProxyConfig: " $ProxyConfig.InstanceType.Name
 
 # Set EC2Tag to prep for auto recovery back on-prem
-$ec2Tag = New-VBRAmazonEC2Tag -Key backup -Value recover
+$ec2Tag = New-VBRAmazonEC2Tag -Key backup -Value yes
 
 # Start recovery
 $ec2Restore = Start-VBRVMRestoreToAmazon -RestorePoint $RestorePoint -Region $Region -LicenseType BYOL -InstanceType $Instance `

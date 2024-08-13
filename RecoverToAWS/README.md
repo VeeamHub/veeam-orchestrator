@@ -69,4 +69,4 @@ In the Orchestration plan - Plan Steps
 
 A tag is added to the EC2 instance for auto backup by VB-AWS
   Key=backup
-  Value=recover
+  Value=yes
