@@ -1,7 +1,7 @@
 Write-Host "Set AWS Info"
 
 #Please Update the vbaws-info.csv for your settings
-$awsCSV = "C:\VRO\Scripts\aws-info.csv" #CSV File to read from.
+$awsCSV = "C:\VRO\CSVs\aws-info.csv" #CSV File to read from.
 $awsInfo =Import-Csv $awsCSV
 
 $Env:AWS_ACCESS_KEY_ID=$awsInfo.accessKey
@@ -29,3 +29,11 @@ $params1 = $params1.Split(" ")
 $ec2Start = & "$command1" $params1 | ConvertFrom-Json
 
 write-host "EC2 start Status: " $ec2Start.StartingInstances.CurrentState.Name
+
+# Wait loop until instance is Running
+do {
+    $ec2Sts = aws ec2 describe-instance-status --include-all-instances --instance-ids $ec2ID | ConvertFrom-Json
+    Start-Sleep -Seconds 15
+} until ($ec2Sts.InstanceStatuses.InstanceState.Name -eq 'running')
+
+write-host $instName 'is now' $ec2Sts.InstanceStatuses.InstanceState.Name
