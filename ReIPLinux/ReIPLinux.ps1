@@ -1,4 +1,4 @@
-[CmdletBinding()]
+ [CmdletBinding()]
 Param(
     [Parameter(Mandatory=$true)]
     [string]$GuestOSCredsUsername,
@@ -80,6 +80,7 @@ function ValidateCIDR {
         [ValidateRange(1,32)]
         [int] $CIDR
     )
+    #Match CIDR to subnetmask
     switch ($CIDR) 
     {
         1 {$script:VMtarget.newMask = "128.0.0.0"; Break}  
@@ -169,7 +170,6 @@ function ParseInterfaceConfig ($vm, $netdevices, $ostype, $GuestCredential) {
                 #iterate through properties and locate the device connection name
                 if ($column[0].Trim() -like "*GENERAL.CONNECTION*"){
                     $connection = $column[1].Trim()
-
                 }
 
                 #iterate through properties and locate the device IPv4 address
@@ -451,4 +451,4 @@ try {
 }
 catch {
     throw "There was an error attempting to disconnect from $vCenterServer"
-}   
+}
