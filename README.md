@@ -83,9 +83,9 @@ In the Orchestration plan - Plan Steps
     Desription = Secondary DNS address. 
     Type = Text
     Default Value = 
-
+```
 * Add the following optional Step Parameters if needed
-  ```
+```
     Name = SudoRequired
     Desription = Use this parameter to force the use of Sudo. 
     Type = Text
@@ -95,3 +95,4 @@ In the Orchestration plan - Plan Steps
     Desription = Use this parameter to specify if a password is not required. The script defaults to using a password with Sudo if 'SudoRequired' is set to true. 
     Type = Text
     Default Value = false (the script defaults to true unless this parameter is set to 'false')
+```
