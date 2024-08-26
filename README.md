@@ -33,6 +33,7 @@ None currently
 
 In the Orchestration plan - Plan Steps
 * Add the following required Step Parameters
+* ```
     Name = vCenterServer\n
     Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.\n
     Type = Text\n
@@ -84,6 +85,7 @@ In the Orchestration plan - Plan Steps
     Default Value = 
 
 * Add the following optional Step Parameters if needed
+  ```
     Name = SudoRequired
     Desription = Use this parameter to force the use of Sudo. 
     Type = Text
