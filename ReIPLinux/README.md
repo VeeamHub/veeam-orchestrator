@@ -32,6 +32,11 @@ None currently
 ## Additional Information
 
 In the Orchestration plan - Plan Steps
+* Modify the following pre-defined parameter values
+```
+    Common Parameters/Retries = 1 (to limit execution time in case of failure)
+    Execute Location/Default Values = Veeam Backup Server
+```
 * Add the following required Step Parameters
 ```
     Name = vCenterServer\n
