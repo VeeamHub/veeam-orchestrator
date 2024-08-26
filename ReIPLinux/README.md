@@ -65,7 +65,7 @@ In the Orchestration plan - Plan Steps
     Default Value = %current_vm_ip%
 
     Name = ReIPRule
-    Desription = Re-IP Rule to apply. Can use asterisk(*) to keep source IP values in an octet. Ex. 10.1.*.* or 10.0.1.* 
+    Desription = Re-IP Rule to apply. Can use asterisk(*) to keep source IP values for an octet. Ex. 10.1.*.* or 10.0.1.* 
     Type = Text
     Default Value = 
 
@@ -101,3 +101,4 @@ In the Orchestration plan - Plan Steps
     Type = Text
     Default Value = false (the script defaults to true unless this parameter is set to 'false')
 ```
+*The script is set to work for VMware VMs that have a 'Guest OS Family' of 'Linux' and a 'Guest OS Version' of "*CentOS*", "*Red Hat*", or "*Ubuntu*". If you have configured a VM with another OS Version such as "*Debian*", this can be modified in the "SetVMNetworkInterface" function where the OS Type is checked.
