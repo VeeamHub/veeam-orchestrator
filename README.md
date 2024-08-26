@@ -33,10 +33,10 @@ None currently
 
 In the Orchestration plan - Plan Steps
 * Add the following required Step Parameters
-    Name = vCenterServer
-    Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.
-    Type = Text
-    Default Value = Either leave blank or put your recovery vCenter name here 
+    Name = vCenterServer\n
+    Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.\n
+    Type = Text\n
+    Default Value = Either leave blank or put your recovery vCenter name here\n
 
     Name = vCenterServerCreds
     Desription = The credential used to authenticate to the "vCenterServer"
