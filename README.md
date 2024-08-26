@@ -33,7 +33,7 @@ None currently
 
 In the Orchestration plan - Plan Steps
 * Add the following required Step Parameters
-* ```
+```
     Name = vCenterServer\n
     Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.\n
     Type = Text\n
