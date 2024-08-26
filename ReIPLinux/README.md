@@ -101,4 +101,4 @@ In the Orchestration plan - Plan Steps
     Type = Text
     Default Value = false (the script defaults to true unless this parameter is set to 'false')
 ```
-* The script is set to work for VMware VMs that have a 'Guest OS Family' of 'Linux' and a 'Guest OS Version' of "*CentOS*", "*Red Hat*", or "*Ubuntu*". If you have configured a VM with another OS Version such as "*Debian*", this can be modified in the "SetVMNetworkInterface" function where the OS Type is checked.
+* The script is set to work for VMware VMs that have a 'Guest OS Family' of 'Linux' and a 'Guest OS Version' of "*CentOS*", "*Red Hat*", or "*Ubuntu*". If you have configured a VM with another OS Version such as "*Debian*" to use Network Manager to configure network devices, the script can be modified to enable exection for this OS Type in the "SetVMNetworkInterface" function where the OS Type is checked.
