@@ -1,20 +1,96 @@
-# Orchestrator
-Location for Scripts used within Veeam Recovery Orchestrator
+# Veeam Recovery Orchestrator - Re-IP Linux VMs using PowerCLI and Network Manager (nmcli)
 
-Powershell sample scripts that can be reused / adapted. Please do not just execute scripts without understanding what each and every line will do. Scripts in this repository are community driven projects and are not created by Veeam R&D or validated by Veeam Q&A. They are maintained by community members which may or not be Veeam employees.
+## Author
 
-## 📗 Documentation
+Tyson Fewins (tfewins)
 
-Documentation and usage instructions can be found with each script.
+## Function
 
-## ✍ Contributions
+This script is designed to query and modify the network device settings in a Linux VM that uses Network Manager to control device configurations. This script is used as a VM step in a recovery or replication failover plan.
 
-We welcome contributions from the community! We encourage you to create [issues](https://github.com/VeeamHub/veeam-orchestrator/issues/new/choose) for Bugs & Feature Requests and submit Pull Requests for adding/updating scripts. For more detailed information, refer to our [Contributing Guide](CONTRIBUTING.md).
 
-## 🤝🏾 License
+***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
 
-* [MIT License](LICENSE)
+* Read the Veeam Recovery Orchestrator User Guide
+* Fully understand what the script is doing
+* Test the script in a lab environment
+* Understand how Veeam Restore and/or Replica Failover works
 
-## 🤔 Questions
+## Known Issues
 
-If you have any questions or something is unclear, please don't hesitate to [create an issue](https://github.com/VeeamHub/veeam-orchestrator/issues/new/choose) and let us know!
+None currently
+
+## Requirements
+
+* Veeam Backup & Replication v12 or later
+* Veeam Recovery Orchestrator v7 or later
+* Install VMware PowerCLI on the Veeam Backup & Replication server
+  * For PowerCLI install:
+    Documentation:
+	  https://developer.broadcom.com/powercli/installation-guide
+* Credentials for target vCenter and VM need to exist in the Recovery Orchestrator Credentials store
+
+## Additional Information
+
+In the Orchestration plan - Plan Steps
+* Add the following required Step Parameters
+    Name = vCenterServer
+    Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.
+    Type = Text
+    Default Value = Either leave blank or put your recovery vCenter name here 
+
+    Name = vCenterServerCreds
+    Desription = The credential used to authenticate to the "vCenterServer"
+    Type = Credential
+    Default Value = (Either blank or select your DR vCenter credential)
+
+    Name = GuestOsCreds
+    Desription = The credential used to authenticate in the VM guest OS
+    Type = Credential
+    Default Value = (Either blank or put your recovery vCenter name here)
+
+    Name = VMName
+    Desription = Name of the target VM
+    Type = Text
+    Default Value = %target_vm_name% (for replica plan)
+
+    Name = VMOrigIP
+    Desription = Original IP Address. Used to locate the network device to be modified. 
+    Type = Text
+    Default Value = %current_vm_ip%
+
+    Name = ReIPRule
+    Desription = Re-IP Rule to apply. Can use asterisk(*) to keep source IP values in an octet. Ex. 10.1.*.* or 10.0.1.* 
+    Type = Text
+    Default Value = 
+
+    Name = CDIR
+    Desription = CIDR number for subnet mask. Ex. 24, 28, etc.  
+    Type = Text
+    Default Value = 
+
+    Name = NewGateway
+    Desription = New gateway address. 
+    Type = Text
+    Default Value = 
+
+    Name = PrimaryDNS
+    Desription = Primary DNS address. 
+    Type = Text
+    Default Value = 
+
+    Name = SecondaryDNS
+    Desription = Secondary DNS address. 
+    Type = Text
+    Default Value = 
+
+* Add the following optional Step Parameters if needed
+    Name = SudoRequired
+    Desription = Use this parameter to force the use of Sudo. 
+    Type = Text
+    Default Value = true (the script defaults to false unless this parameter is set to 'true')
+
+    Name = SudoPassRequired
+    Desription = Use this parameter to specify if a password is not required. The script defaults to using a password with Sudo if 'SudoRequired' is set to true. 
+    Type = Text
+    Default Value = false (the script defaults to true unless this parameter is set to 'false')
