@@ -53,7 +53,7 @@ This script is designed to help automate the power on of a Veeam Backup for AWS 
 
 ## Additional Information
 
-Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\Scripts folder on Veeam BNR server
+Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\CSVs folder on Veeam BNR server
 
 Fill in for your environment - accessKey, secretKey,region, so on
 
