@@ -4,6 +4,9 @@ Write-Host "Set AWS Info"
 $vbawsCSV = "C:\VRO\CSVs\vb-aws-info.csv" #CSV File to read from.
 $vbawsInfo = Import-Csv $vbawsCSV
 
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 $Env:AWS_ACCESS_KEY_ID=$vbawsInfo.accessKey
 $Env:AWS_SECRET_ACCESS_KEY=$vbawsInfo.secretKey
 $Env:AWS_DEFAULT_REGION=$vbawsInfo.region
