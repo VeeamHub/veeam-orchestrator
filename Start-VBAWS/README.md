@@ -29,7 +29,7 @@ This script is designed to help automate the power on of a Veeam Backup for AWS 
 * Install AWS CLI
   * Configure AWS CLI
 
-  AWS CLI needs to be installed on Veeam BNR server
+  AWS CLI needs to be installed on Veeam VRO server
   * For AWS Recovery need AWS CLI:
     Documentation:
 	  https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
@@ -53,7 +53,7 @@ This script is designed to help automate the power on of a Veeam Backup for AWS 
 
 ## Additional Information
 
-Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\CSVs folder on Veeam BNR server
+Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\CSVs folder on Veeam VRO server
 
 Fill in for your environment - accessKey, secretKey,region, so on
 
