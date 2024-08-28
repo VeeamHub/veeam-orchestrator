@@ -27,6 +27,9 @@ None currently
   * For PowerCLI install:
     Documentation:
 	  https://developer.broadcom.com/powercli/installation-guide
+* Network Manager installation is required in the VM Guest OS
+  * New releases of RHEL and its derivatives ship with Network Manager, as well as new releases of Ubuntu.
+  * Network Manager is available on other Linux OSes but may require installation and configuration
 * Credentials for target vCenter and VM need to exist in the Recovery Orchestrator Credentials store
 
 ## Additional Information
