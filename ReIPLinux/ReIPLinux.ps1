@@ -63,14 +63,14 @@ function GetPSCreds ($userName, $password) {
 }
 
 function ConnectVI ($Server, $Credential) {
-    if ($Credential -eq $null) {
+    if ($null -eq $Credential) {
         Write-Host "`tError: Cannot connect to $server as no credentials were specified."
         return
     }
 
     Write-Host "`nConnecting to $Server using credentials ($($Credential.UserName))."
     $Server = Connect-VIServer $Server -Credential $Credential
-    if ($Server -eq $null) {
+    if ($null -eq $Server) {
         Write-Host "`tError: A connectivity issue has occurred when connecting to the vCenter server."
     }
 }
@@ -216,23 +216,30 @@ function ParseInterfaceConfig ($vm, $netdevices, $ostype, $GuestCredential) {
 }
 
 function GetVMNetworkInterface ($vm, $GuestCredential) {   
-$scripttype = ""
-$scripttext = ""
+    $scripttype = ""
+    $scripttext = ""
     
-$ostype = "Linux" 
-$vm_os = $vm.Guest.OSFullName
-if ($vm_os -like "*Windows*") { $ostype = "Windows" }
+    $ostype = "Linux" 
+    $vm_os = $vm.Guest.OSFullName
+    if ($vm_os -like "*Windows*") { $ostype = "Windows" }
     
-if ($ostype -eq "Linux") { 
-    $scripttype = "Bash"
-    $scripttext = "nmcli -t -f device dev status"
-}
+    if ($ostype -eq "Linux") { 
+        $scripttype = "Bash"
+        $scripttext = "nmcli -t -f device dev status"
+    }
 
-#Get the list of network devices
-Write-Host "`tChecking VM network devices"
-Write-Host "`t`tInvoking script: `n`t`t`t$($scripttext)"
-$output = Invoke-VMScript -VM $vm.Name -GuestCredential $GuestCredential -ScriptType $scripttype -ScriptText $scripttext
-$script:VMNetDevices = $output
+    #Get the list of network devices
+    Write-Host "`tChecking VM network devices"
+    Write-Host "`t`tInvoking script: `n`t`t`t$($scripttext)"
+    $output = Invoke-VMScript -VM $vm.Name -GuestCredential $GuestCredential -ScriptType $scripttype -ScriptText $scripttext
+    if ($null -ne $output) {
+        if ($output -like "*Error*") {
+            throw "Error: Unable to run Network Manager on this machine"
+        }
+        else {
+            $script:VMNetDevices = $output
+        }
+    } 
 }
 
 function SetVMNetworkInterface ($vm, $connection, $ipaddress, $cidr, $gateway, $dns, $dns2, $GuestCredential) {
@@ -250,7 +257,7 @@ function SetVMNetworkInterface ($vm, $connection, $ipaddress, $cidr, $gateway, $
     <#
         Checking the OS of the VM as designated in vSphere
         ** This can be modified if other Linux OS types have been configured to utilize Network Manager to manage network devices **
-            Ex. add "-or ($ostype -eq "Debian")" to the "if" statement
+            Ex. add "-or ($ostype -like "*Debian*")" to the "if" statement
     #>
     if (($ostype -eq "CentOS") -or ($ostype -eq "RedHat") -or ($ostype -eq "Ubuntu")) { 
         $scripttype = "Bash"
@@ -288,7 +295,7 @@ function UpdateVMIPAddresses ($VM, $GuestCredential){
     $_vm = Get-VM -Name $VM.ServerName
     
     #Get the list of network devices on the VM if it is accessible
-    if ($_vm -ne $null) {
+    if ($null -ne $_vm) {
         GetVMNetworkInterface -VM $_vm -GuestCredential $GuestCredential
     }
     #If the VM is not accessible output an error
@@ -451,4 +458,4 @@ try {
 }
 catch {
     throw "There was an error attempting to disconnect from $vCenterServer"
-}
+} 
