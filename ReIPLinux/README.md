@@ -60,7 +60,7 @@ In the Orchestration plan - Plan Steps
     Name = VMName
     Desription = Name of the target VM
     Type = Text
-    Default Value = %target_vm_name% (for replica plan)
+    Default Value = %current_vm_name% 
 
     Name = VMOrigIP
     Desription = Original IP Address. Used to locate the network device to be modified. 
