@@ -1,4 +1,4 @@
-# Automated Veeam Orchestrator Power on VB-AWS Appliance 
+# Automated Veeam Orchestrator Start VB-AWS Appliance Backup Policy
 
 ## Author
 
@@ -6,7 +6,7 @@ Marty Williams (@skitch210)
 
 ## Function
 
-This script is designed to help automate the power on of a Veeam Backup for AWS Appliance after DR Recovery of workloads to EC2
+This script is designed to help automate the Start of a Policy in VB for AWS to backup Instances after being restored into AWS
 
 
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
@@ -26,10 +26,10 @@ This script is designed to help automate the power on of a Veeam Backup for AWS 
 
 * Veeam Backup & Replication 11a or later
 * Veeam Backup for AWS Appliance deployed
-* Install AWS CLI
+* Install AWS CLI on VRO server
   * Configure AWS CLI
 
-  AWS CLI needs to be installed on Veeam VRO server
+  AWS CLI needs to be installed on Veeam Recovery Orchestrator server
   * For AWS Recovery need AWS CLI:
     Documentation:
 	  https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
@@ -53,7 +53,7 @@ This script is designed to help automate the power on of a Veeam Backup for AWS 
 
 ## Additional Information
 
-Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\CSVs folder on Veeam VRO server
+Rename vb-aws-info.csv.template to vb-aws-info.csv and place in a C:\VRO\CSVs folder on Veeam Orchestrator server
 
 Fill in for your environment - accessKey, secretKey,region, so on
 
