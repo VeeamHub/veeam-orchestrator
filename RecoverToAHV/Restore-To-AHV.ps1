@@ -294,6 +294,8 @@ $sess_URL = "https://$vanIP/api/v5/sessions/$sessID"
 do {
     $sess_req = Invoke-WebRequest -Uri $sess_URL `
                 -Method "Get" `
+                -ContentType "application/json" `
+                -UseBasicParsing  `
                 -Headers @{
                             "authorization" = "Bearer $proxyToken";
                         }
