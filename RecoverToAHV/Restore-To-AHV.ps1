@@ -286,4 +286,22 @@ $p += @"
                 Write-Host "RestoreTo AHV failed - " $restore_req.StatusCode
             }
 
- 
+$res1 = $restore_req | ConvertFrom-Json
+$sessID = $res1.sessionId
+            
+$sess_URL = "https://$vanIP/api/v5/sessions/$sessID"
+            
+do {
+    $sess_req = Invoke-WebRequest -Uri $sess_URL `
+                -Method "Get" `
+                -Headers @{
+                            "authorization" = "Bearer $proxyToken";
+                        }
+            
+    $sess1 = $sess_req | ConvertFrom-Json
+    Start-Sleep -Seconds 15
+} until ($sess1.status -eq 'Success')
+            
+Write-Host "Restore session result: " $sess1.result 
+            
+            
