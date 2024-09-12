@@ -42,55 +42,55 @@ In the Orchestration plan - Plan Steps
 ```
 * Add the following required Step Parameters
 ```
-    Name = vCenterServer\n
-    Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.\n
-    Type = Text\n
-    Default Value = Either leave blank or put your recovery vCenter name here\n
+    Name = vCenterServer
+    Desription = Hostname, FQDN, or IP of the vCenter Server that manages the target VM. This is used for PowerCLI connection.
+    Type = Text
+    Default Value = (Set a default value as needed)
 
     Name = vCenterServerCreds
     Desription = The credential used to authenticate to the "vCenterServer"
     Type = Credential
-    Default Value = (Either blank or select your DR vCenter credential)
+    Default Value = (Set a default value as needed)
 
     Name = GuestOsCreds
     Desription = The credential used to authenticate in the VM guest OS
     Type = Credential
-    Default Value = (Either blank or put your recovery vCenter name here)
+    Default Value = (Set a default value as needed)
 
     Name = VMName
     Desription = Name of the target VM
     Type = Text
-    Default Value = %current_vm_name% 
+    Default Value = %current_vm_name% (this will pass the VM name at runtime)
 
     Name = VMOrigIP
     Desription = Original IP Address. Used to locate the network device to be modified. 
     Type = Text
-    Default Value = %current_vm_ip%
+    Default Value = %current_vm_ip% (this will pass the VM IP at runtime)
 
     Name = ReIPRule
     Desription = Re-IP Rule to apply. Can use asterisk(*) to keep source IP values for an octet. Ex. 10.1.*.* or 10.0.1.* 
     Type = Text
-    Default Value = 
+    Default Value = (Set a default value as needed)
 
-    Name = CDIR
+    Name = CIDR
     Desription = CIDR number for subnet mask. Ex. 24, 28, etc.  
     Type = Text
-    Default Value = 
+    Default Value = (Set a default value as needed)
 
     Name = NewGateway
     Desription = New gateway address. 
     Type = Text
-    Default Value = 
+    Default Value = (Set a default value as needed)
 
     Name = PrimaryDNS
     Desription = Primary DNS address. 
     Type = Text
-    Default Value = 
+    Default Value = (Set a default value as needed)
 
     Name = SecondaryDNS
     Desription = Secondary DNS address. 
     Type = Text
-    Default Value = 
+    Default Value = (Set a default value as needed. If no SecondaryDNS is needed, leave this value blank)
 ```
 * Add the following optional Step Parameters if needed
 ```
