@@ -1,4 +1,4 @@
-# Veeam Recovery Orchestrator - Recover to AWS 
+# Veeam Recovery Orchestrator - Recover to Nutanix AHV
 
 ## Author
 
@@ -6,67 +6,35 @@ Marty Williams (@skitch210)
 
 ## Function
 
-This script is designed to help automate the recovery of VMs in a backup job and Recovery Orchestrator Plan to AWS
+This script is designed to help automate the recovery of VMs in a backup job and Recovery Orchestrator Plan to Nutanix AHV
 
 
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
 
-* Read the AWS Hardware compatability for recovery
 * Fully understand what the script is doing
 * Test the script in a lab environment
-* Understand how Veeam Restore to AWS works
+* Understand how Veeam for Nutanix AHV works
 
 ## Known Issues
 
-* Linux GPT disks are not supported on AWS, neeed to convert to MPR
-* VM IP addresses are not adjusted for running in AWS
-    * The last step in the strip creates a CSV file with server name and IP address that can be used for mass DNS updates
-      You can use this to update your DNS entries
-
+* VMs can only have 1 type of storage controller
+* VM IP addresses are not adjusted
 
 ## Requirements
 
-* Veeam Backup & Replication v11a or later
-* Veeam Recovery Orchestrator v5 or later
-* Install AWS CLI
-  * Configure AWS CLI
-
-  AWS CLI needs to be installed on Veeam BNR server
-  * For AWS Recovery need AWS CLI:
-    Documentation:
-	  https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-
-	  Download:
-	  https://awscli.amazonaws.com/AWSCLIV2.msi
-
-	  Run installer on command line:
-	  msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
-
-    Create IAM role in AWS Console:
-	  https://docs.aws.amazon.com/cli/latest/userguide/getting-started-prereqs.html
-
-    Run - aws configure - command to set default perimeters:
-	  Access key
-	  Secret key
-	  Default region
-	  Default Output format
-      Run the aws configure as the Orchestrator service account
-
+* Veeam Backup & Replication v12.2a or later
+* Veeam Recovery Orchestrator v7 or later
+* Veeam Backup for Nutanix v6
 
 ## Additional Information
 
-Rename aws-info.csv.template to aws-info.csv and place in a C:\VRO\CSVs folder on Veeam BNR server
+Rename nutanix-info.csv.template to nutanix-info.csv and place in a C:\VRO\CSVs folder on Veeam BNR server
 
-Fill in for your environment - accessKey, secretKey,region, so on
+Fill in for your environment - proxy IP,proxy user,proxy user password,cluster IP,cluster user,cluster user password
 
 In the Orchestration plan - Plan Steps
 * Add a Step Parameter
     Name has to be VMName
     Text type with Default value = %source_vm_name%
-    Adjust the Timeout value to allow for long recoveryinto AWS - I set mine for 1 hour
+    Adjust the Timeout value to allow for long recovery into AHV - I set mine for 15 minutes
     Change the retry number to 0 to prevent partial restores from repeating
-
-
-A tag is added to the EC2 instance for auto backup by VB-AWS
-  Key=backup
-  Value=yes
