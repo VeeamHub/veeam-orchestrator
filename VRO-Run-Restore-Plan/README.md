@@ -1,4 +1,4 @@
-# Veeam Recovery Orchestrator - VB Azure Enable a Policy for backup
+# Veeam Recovery Orchestrator - Execute the running of a restore plan
 
 ## Author
 
@@ -6,7 +6,7 @@ Marty Williams (@skitch210)
 
 ## Function
 
-This script is designed to enable and start a predefined-disabled backup policy in Veeam Backup for Azure
+This script is designed to run a restore plan in VRO from a VBR server via Powershell
 
 
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
@@ -14,7 +14,7 @@ This script is designed to enable and start a predefined-disabled backup policy 
 * Read the Veeam Recovery Orchestrator User Guide
 * Fully understand what the script is doing
 * Test the script in a lab environment
-* Understand how Veeam Backup for Azure works
+* Understand how Veeam Recovery Orchestrator Restore plan works
 
 ## Known Issues
 
