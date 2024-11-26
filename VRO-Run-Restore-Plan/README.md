@@ -18,16 +18,15 @@ This script is designed to run a restore plan in VRO from a VBR server via Power
 
 ## Known Issues
 
-VMs restore in the Powered On state - if not your desired result, you need to script a Power Off of the restored VMs
-Restore Plan is left in an "In-Use" state - Need to reset and re-Enable in order to use plan again 
+* VMs restore in the Powered On state - if not your desired result, you need to script a Power Off of the restored VMs
+* Restore Plan is left in an "In-Use" state - Need to reset and re-Enable in order to use plan again 
+* Backup job and Restore Plan should have same VMs in them for consistency
+* If using 1 vCenter to manage Production and DR, recommend to modify Restore VM step-Restored VM Name to append to the VM name to not confuse with Production VM after restore completes
 
 ## Requirements
 
 * Veeam Backup & Replication v12 or later
-  * Backup job and Restore Plan should have same VMs in them for consistency
 * Veeam Recovery Orchestrator v7 or later
-  * If using 1 vCenter to manage Production and DR, recommend to modify Restore VM step-Restored VM Name to append to the VM name to not confuse with Production VM after restore completes
-
     
 ## Additional Information
 
