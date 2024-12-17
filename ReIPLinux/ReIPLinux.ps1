@@ -16,44 +16,55 @@ Param(
     [string]$vCenterServer,
 
     [Parameter(Mandatory=$true)]
+    [string]$SourceVmName,
+
+    [Parameter(Mandatory=$true)]
     [string]$VMName,
 
     [Parameter(Mandatory=$true)]
     [string]$VMOrigIP,
 
-    [Parameter(Mandatory=$true)]
-    [string]$ReIPRule,
-
-    [Parameter(Mandatory=$true)]
-    [ValidateLength(1, 2)]
-    [string]$CIDR,
-
-    [Parameter(Mandatory=$true)]
-    [string]$NewGateway,
-
-    [Parameter(Mandatory=$true)]
-    [string]$PrimaryDNS,
+    [Parameter(Mandatory=$false)]
+    $SudoRequired = 'true',
 
     [Parameter(Mandatory=$false)]
-    [string]$SecondaryDNS = '',
+    $SudoPassRequired = 'true',
 
-    [Parameter(Mandatory=$false)]
-    $SudoRequired = 'false',
-
-    [Parameter(Mandatory=$false)]
-    $SudoPassRequired = 'true'
+    [Parameter(Mandatory=$true)]
+    [string]$ScriptPath
 )
 
+### Parameter examples for manual testing (without VRO)
+# $GuestOSCredsUsername = "notroot"
+# $GuestOSCredsPassword = "SecurePassword"
+# $vCenterServerCredsUsername = "administrator@vsphere.local"
+# $vCenterServerCredsPassword = "SecurePassword"
+# $vCenterServer = "vcenter_server_fqdn"
+# $SourceVmName = "web-1"
+# $VMName = "web-1_replica"
+# $VMOrigIP = "192.168.100.150"
+# $SudoRequired = 'true'
+# $SudoPassRequired = 'true'
+# $ScriptPath = "c:\path\here"
+
+Function Write-Log {
+    param([string]$str)      
+    Write-Host $str
+    $dt = (Get-Date).toString("yyyy.MM.dd HH:mm:ss")
+    $str = "[$dt] <$CurrentPid> $str"
+    Add-Content $LogFile -value $str
+}     
+
 function PreReqs {
-    Write-Host "`nChecking for PowerCLI installation"
+    Write-Log "`nChecking for PowerCLI installation"
     try{
         Import-Module VMware.VimAutomation.Sdk | Out-Null
         Import-Module VMware.VimAutomation.Common | Out-Null
         Import-Module VMware.VimAutomation.Cis.Core | Out-Null
         Import-Module VMware.VimAutomation.Core | Out-Null
-        Write-Host "`tPowerCLI installed"
+        Write-Log "`tPowerCLI installed"
     } catch {
-        Write-Error "There was an error with the PowerCLI installation"
+        Write-Log "Error: There was an error with the PowerCLI installation"
     } 
 }
 
@@ -64,63 +75,51 @@ function GetPSCreds ($userName, $password) {
 
 function ConnectVI ($Server, $Credential) {
     if ($null -eq $Credential) {
-        Write-Host "`tError: Cannot connect to $server as no credentials were specified."
+        Write-Log "`tError: Cannot connect to $server as no credentials were specified."
         return
     }
 
-    Write-Host "`nConnecting to $Server using credentials ($($Credential.UserName))."
+    Write-Log "`nConnecting to $Server using credentials ($($Credential.UserName))."
     $Server = Connect-VIServer $Server -Credential $Credential
     if ($null -eq $Server) {
-        Write-Host "`tError: A connectivity issue has occurred when connecting to the vCenter server."
+        Write-Log "`tError: A connectivity issue has occurred when connecting to the vCenter server."
     }
 }
 
-function ValidateCIDR {
-    param(
-        [ValidateRange(1,32)]
-        [int] $CIDR
+function ConvertNetmaskToCidr {
+    param (
+        [string]$Netmask
     )
-    #Match CIDR to subnetmask
-    switch ($CIDR) 
-    {
-        1 {$script:VMtarget.newMask = "128.0.0.0"; Break}  
-        2 {$script:VMtarget.newMask = "192.0.0.0"; Break}
-        3 {$script:VMtarget.newMask = "224.0.0.0"; Break}
-        4 {$script:VMtarget.newMask = "240.0.0.0"; Break}
-        5 {$script:VMtarget.newMask = "248.0.0.0"; Break}
-        6 {$script:VMtarget.newMask = "252.0.0.0"; Break}
-        7 {$script:VMtarget.newMask = "254.0.0.0"; Break}
-        8 {$script:VMtarget.newMask = "255.0.0.0"; Break}
-        9 {$script:VMtarget.newMask = "255.128.0.0"; Break}
-        10 {$script:VMtarget.newMask = "255.192.0.0"; Break}
-        11 {$script:VMtarget.newMask = "255.224.0.0"; Break}
-        12 {$script:VMtarget.newMask = "255.240.0.0"; Break}
-        13 {$script:VMtarget.newMask = "255.248.0.0"; Break}
-        14 {$script:VMtarget.newMask = "255.252.0.0"; Break}
-        15 {$script:VMtarget.newMask = "255.254.0.0"; Break}
-        16 {$script:VMtarget.newMask = "255.255.0.0"; Break}
-        17 {$script:VMtarget.newMask = "255.255.128.0"; Break}
-        18 {$script:VMtarget.newMask = "255.255.192.0"; Break}
-        19 {$script:VMtarget.newMask = "255.255.224.0"; Break}
-        20 {$script:VMtarget.newMask = "255.255.240.0"; Break}
-        21 {$script:VMtarget.newMask = "255.255.248.0"; Break}
-        22 {$script:VMtarget.newMask = "255.255.252.0"; Break}
-        23 {$script:VMtarget.newMask = "255.255.254.0"; Break}
-        24 {$script:VMtarget.newMask = "255.255.255.0"; Break}
-        25 {$script:VMtarget.newMask = "255.255.255.128"; Break}
-        26 {$script:VMtarget.newMask = "255.255.255.192"; Break}
-        27 {$script:VMtarget.newMask = "255.255.255.224"; Break}
-        28 {$script:VMtarget.newMask = "255.255.255.240"; Break}
-        29 {$script:VMtarget.newMask = "255.255.255.248"; Break}
-        30 {$script:VMtarget.newMask = "255.255.255.252"; Break}
-        31 {$script:VMtarget.newMask = "255.255.255.254"; Break}
-        32 {$script:VMtarget.newMask = "255.255.255.255"; Break} 
-        Default {Write-Error "Unable to convert CIDR to an appropriate network mask. $CIDR does not match a CIDR number of 1-32"}
-    }
-}
 
+    # Validate input
+    if (-not $Netmask -or -not $Netmask -match '^(?:\d{1,3}\.){3}\d{1,3}$') {
+        throw "Invalid netmask format. Please provide a valid netmask (e.g., 255.255.255.0)."
+        Write-Log "Error: Invalid netmask format. Please provide a valid netmask (e.g., 255.255.255.0)."
+    }
+
+    # Split the netmask into octets
+    $octets = $Netmask -split '\.'
+
+    # Ensure each octet is between 0 and 255
+    if ($octets | Where-Object { $_ -lt 0 -or $_ -gt 255 }) {
+        Write-Log "Error: Invalid octet(s) in the netmask. Each must be between 0 and 255."
+        throw "Invalid octet(s) in the netmask. Each must be between 0 and 255."
+    }
+
+    # Convert each octet to binary and concatenate
+    $binaryNetmask = ($octets | ForEach-Object { 
+        [Convert]::ToString([int]$_, 2).PadLeft(8, '0')
+    }) -join ''
+
+    # Count the number of 1s in the binary representation
+    $cidr = ($binaryNetmask -split '1').Count - 1
+
+    # Return the CIDR as an integer
+    return $cidr
+
+}
 function ApplyReIPRule ($SourceIpAddress, $ReIPRule) { 
-    Write-Host "Applying re-ip rule to determine the target ip address"   
+    Write-Log "Applying re-ip rule to determine the target ip address"   
     $TargetIp = $ReIPRule
     for($i=1;$i -le 3; $i++) {
         [regex]$pattern  = "\*"
@@ -130,10 +129,10 @@ function ApplyReIPRule ($SourceIpAddress, $ReIPRule) {
     }
     $script:VMtarget.newIP = $TargetIp
     if ($VMtarget.newIP -ne '') {
-        Write-Host "`n`tResults of ReIP Rule:`n`t`tSource IP: $($VMtarget.origIP)`n`t`tReIP Rule: $($VMtarget.reIPRule)`n`t`tTarget IP: $($VMtarget.newIP)"
+        Write-Log "`n`tResults of ReIP Rule:`n`t`tSource IP: $($VMtarget.origIP)`n`t`tReIP Rule: $($VMtarget.reIPRule)`n`t`tTarget IP: $($VMtarget.newIP)"
     }
     else {
-        Write-Error "`tFailed to determine the target IP address from the re-ip rule"
+        Write-Log "`tERROR: Failed to determine the target IP address from the re-ip rule"
     }
 }
 
@@ -141,7 +140,7 @@ function ParseInterfaceConfig ($vm, $netdevices, $ostype, $GuestCredential) {
     $count = 0
 
     #This is used to verify the updated IP on recheck after device modification
-    Write-Host "`n`t`tVerification is set to: $($VMNicVerify)"
+    Write-Log "`n`t`tVerification is set to: $($VMNicVerify)"
 
     #Retrieve device details and locate the source IP on device
     if ($ostype -eq "Linux") {
@@ -152,17 +151,17 @@ function ParseInterfaceConfig ($vm, $netdevices, $ostype, $GuestCredential) {
             $scripttext = ''
             $output = ''
             if ($VMNicVerify -eq $false){
-                Write-Host "`n`t`tDevice $($count + 1) = $devName"
+                Write-Log "`n`t`tDevice $($count + 1) = $devName"
             }
             $scripttext = "nmcli -t dev show $devName"
             if ($VMNicVerify -eq $false){
-                Write-Host "`t`tRetrieving details for Device $($count + 1): `n`t`t`t$scripttext"
+                Write-Log "`t`tRetrieving details for Device $($count + 1): `n`t`t`t$scripttext"
             }
             else {
-                Write-Host "`t`tVerifying the details for $($VMNicName): `n`t`t`t$scripttext"
+                Write-Log "`t`tVerifying the details for $($VMNicName): `n`t`t`t$scripttext"
             }
             $output = Invoke-VMScript -VM $vm.Name -GuestCredential $GuestCredential -ScriptType $scripttype -ScriptText $scripttext
-            Write-Host "`nDevice info:`n$output"
+            Write-Log "`nDevice info:`n$output"
             $devProperties = $output.Split("`n")
             foreach ($property in $devProperties){
                 $column = $property.Split(":")
@@ -197,11 +196,11 @@ function ParseInterfaceConfig ($vm, $netdevices, $ostype, $GuestCredential) {
         if($VMNicName -ne ''){
             #if target IP was verified on the recheck, output succes
             if ($success){
-                Write-Host "`n`t`tUpdated IP on $($VMNicName) has been verified"
+                Write-Log "`n`t`tUpdated IP on $($VMNicName) has been verified"
             }
             #if source IP was located on first run output the devicename
             else {
-                Write-Host "`n`tMatching ip found on $($VMNicName)"
+                Write-Log "`n`tMatching ip found on $($VMNicName)"
             }
         }
         #output warning if source IP was not located
@@ -211,7 +210,7 @@ function ParseInterfaceConfig ($vm, $netdevices, $ostype, $GuestCredential) {
     }
     #Wrong OS
     else {
-        Write-Error "Incompatible OS"
+        Write-Log "Error: Incompatible OS"
     }
 }
 
@@ -229,8 +228,8 @@ function GetVMNetworkInterface ($vm, $GuestCredential) {
     }
 
     #Get the list of network devices
-    Write-Host "`tChecking VM network devices"
-    Write-Host "`t`tInvoking script: `n`t`t`t$($scripttext)"
+    Write-Log "`tChecking VM network devices"
+    Write-Log "`t`tInvoking script: `n`t`t`t$($scripttext)"
     $output = Invoke-VMScript -VM $vm.Name -GuestCredential $GuestCredential -ScriptType $scripttype -ScriptText $scripttext
     if ($null -ne $output) {
         if ($output -like "*Error*") {
@@ -274,15 +273,15 @@ function SetVMNetworkInterface ($vm, $connection, $ipaddress, $cidr, $gateway, $
         #Restart device to apply changes
         $scripttext += "&& $($sudotext)nmcli con down '$($connection)' "
         $scripttext += "&& $($sudotext)nmcli con up '$($connection)'"
-        Write-Host "`n`t`tInvoking ncmli ReIP script"
+        Write-Log "`n`t`tInvoking ncmli ReIP script"
         $output = Invoke-VMScript -VM $vm.Name -GuestCredential $GuestCredential -ScriptType $scripttype -ScriptText $scripttext
-        Write-Host "`n$output"
+        Write-Log "`n$output"
     }
 
     #Skip unsupported OS types
     elseif ($ostype -eq "Linux") { 
         #do nothing 
-        Write-Error "``tFailed: Virtual Machine $($vm.Name) is running an unsupported operating system $($vm.Guest.OSFullName)."
+        Write-Log "``tERROR: Virtual Machine $($vm.Name) is running an unsupported operating system $($vm.Guest.OSFullName)."
     }
     elseif ($ostype -eq "Windows") { 
         #do nothing 
@@ -300,19 +299,19 @@ function UpdateVMIPAddresses ($VM, $GuestCredential){
     }
     #If the VM is not accessible output an error
     else {
-        Write-Error "Error: Virtual Machine $($VM.ServerName) is unavailable. Check parent server connections and permissions."
+        Write-Log "Error: Virtual Machine $($VM.ServerName) is unavailable. Check parent server connections and permissions."
     }
 
     #Get the details for each network device and locate the matching source IP to a device
     ParseInterfaceConfig -vm $_vm -netdevices $VMNetDevices -ostype "Linux" -GuestCredential $GuestCredential
     
     #output the target configuration settings
-    Write-Host "`n`tRe-IP settings:`n`t`tSource: $($VM.origIP)`n`t`tTarget: $($VM.newIP)`n`t`tSubnet: $($VM.newMask)`n`t`tGateway: $($VM.newGateway)"
+    Write-Log "`n`tRe-IP settings:`n`t`tSource: $($VM.origIP)`n`t`tTarget: $($VM.newIP)`n`t`tSubnet: $($VM.newMask)`n`t`tGateway: $($VM.newGateway)"
     
     #Process the configuration if the source IP was located on a network device
     if ($VMNicName -ne ''){           
         $script:VMNicVerify = $true 
-        Write-Host "`n`tProcessing: $($_vm.Name)`n`t`tinterface: $($VMNicName)`n`t`tsource: $($VMtarget.origIP)`n`t`ttarget: $($VM.newIP)"
+        Write-Log "`n`tProcessing: $($_vm.Name)`n`t`tinterface: $($VMNicName)`n`t`tsource: $($VMtarget.origIP)`n`t`ttarget: $($VM.newIP)"
         
         #Configure the device settings
         SetVMNetworkInterface -VM $_vm -Connection $VMNicConnection -IPAddress $VM.newIP -CIDR $VM.CIDR -Gateway $VM.newGateway -DNS $VM.primaryDNS -dns2 $VM.secondaryDNS -GuestCredential ($GuestCredential)            
@@ -322,11 +321,11 @@ function UpdateVMIPAddresses ($VM, $GuestCredential){
         
         #If verification passed, output the success message
         if ($success){ 
-            Write-Host "`n`tSuccess: Virtual Machine $($VM.ServerName) interface $($VMNicName) updated to $($VM.newIP)" 
+            Write-Log "`n`tSuccess: Virtual Machine $($VM.ServerName) interface $($VMNicName) updated to $($VM.newIP)" 
         }
         #If failed, output error
         else { 
-            Write-Error "Failed: $($VM.ServerName) has not been modified"
+            Write-Log "Error: $($VM.ServerName) has not been modified"
         }    
     }
     #show error if the source IP was not found
@@ -334,6 +333,22 @@ function UpdateVMIPAddresses ($VM, $GuestCredential){
         Write-Warning "`n`tWarning: Virtual Machine $($_vm.Name) does not contain network interfaces matching $($VM.origIP)"
     }
 } 
+
+
+#Log file
+$Version = "0.0.1"
+
+$LogDir = "$($scriptPath)\logs"
+if (-not (Test-Path -Path $LogDir)) {
+    New-Item -Path $LogDir -ItemType Directory
+}
+$LogFile = "$LogDir\$($SourceVmName)-UpdateIp.log"
+
+Write-Log $("="*78)
+Write-Log "{"
+Write-Log "`tScript: $($MyInvocation.MyCommand.Name)"
+Write-Log "`tVersion: { $($Version) }"
+Write-Log "}"
 
 #Script parameters for processing across functions
 $VMNicName = ''
@@ -353,21 +368,27 @@ else {
     $sudotext = ''
 }
 
+#Read ReIP rules from json file
+$VarFileName = "$($scriptPath)\logs\ReIpRules-$($SourceVmName).json"
+$reiprules = Get-Content -Raw $VarFileName | ConvertFrom-Json
+
+
+
 #Define VM parameters
 $VMtarget = [pscustomobject]@{
     ServerName = $VMName;
     origIP = $VMOrigIP;
-    reIPRule = $ReIPRule;
+    reIPRule = $reiprules.TargetIp;
     newIP = '';
-    CIDR = [int]$CIDR;
+    CIDR = ConvertNetmaskToCidr -Netmask $reiprules.TargetSubnet;
     newMask = '';
-    newGateway = $NewGateway;
-    primaryDNS = $PrimaryDNS;
-    secondaryDNS = $SecondaryDNS
+    newGateway = $reiprules.TargetGateway;
+    primaryDNS = $reiprules.TargetDNS.Split(",")[0];
+    secondaryDNS = $reiprules.TargetDNS.Split(",")[1]
 }
 
 #start script
-Write-Host "`nThis script utilizes PowerCLI to connect to vCenter and inject scripts into the Linux guest VM (nmcli) to perform the re-ip actions."
+Write-Log "`nThis script utilizes PowerCLI to connect to vCenter and inject scripts into the Linux guest VM (nmcli) to perform the re-ip actions."
 
 #Check prereqs
 try {
@@ -378,7 +399,7 @@ catch {
 }
 
 #Credentials
-Write-Host "`nImporting credentials"
+Write-Log "`nImporting credentials"
 try{
     $VMwareCred = GetPSCreds $vCenterServerCredsUsername $vCenterServerCredsPassword
     $VMUser = GetPSCreds $GuestOSCredsUsername $GuestOSCredsPassword
@@ -392,7 +413,7 @@ catch {
 
     ** This can be removed or modified to fit the desired outcome **
 #>
-Write-Host "`nSetting PowerCLI configuration"
+Write-Log "`nSetting PowerCLI configuration"
 try{
     Set-PowerCLIConfiguration -Scope User -ParticipateInCeip $false -Confirm:$false | Out-Null
     Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
@@ -407,22 +428,14 @@ try{
 
     #Ensure you are connected to the correct vCenter
     if(!$DefaultVIServer -or $DefaultVIServer.Name -ne $vCenterServer) {
-        Write-Error "`tConnection to vCenter $vCenterServer failed, exiting..`n"
+        Write-Log "`tERROR: Connection to vCenter $vCenterServer failed, exiting..`n"
         exit
     } else {
-        Write-Host "`tConnection to vCenter $vCenterServer succeeded"
+        Write-Log "`tConnection to vCenter $vCenterServer succeeded"
     }
 } 
 catch {
     throw "There was an error connecting to the vCenter server using PowerCLI"
-}
-
-#Validate the CIDR and match the netmask value
-try {
-    ValidateCIDR -CIDR $VMtarget.CIDR
-}
-catch {
-    throw "There was an error validating the CIDR number"
 }
 
 #Process ReIPRule to determine target IP
@@ -434,16 +447,16 @@ catch {
 }
 
 # Update VM network configuration
-Write-Host "`nProcessing $($VMtarget.ServerName)"
+Write-Log "`nProcessing $($VMtarget.ServerName)"
 try {
     if ($sudotext -ne '') {
-        Write-Host "`tSudo = True"
+        Write-Log "`tSudo = True"
         if ($SudoPassRequired -eq 'false') {
-            Write-Host "`tSudo Password is not required"
+            Write-Log "`tSudo Password is not required"
         }
     }
     else {
-        Write-Host "`tSudo = False"
+        Write-Log "`tSudo = False"
     }
     UpdateVMIPAddresses $VMtarget $VMUser
 }
@@ -452,7 +465,7 @@ catch {
 }
 
 #Disconnect from VMware Server session
-Write-Host "Disconnecting from $vCenterServer"
+Write-Log "Disconnecting from $vCenterServer"
 try {
     Disconnect-VIServer -Confirm:$false 
 }
