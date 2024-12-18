@@ -8,6 +8,8 @@ Tyson Fewins (tfewins)
 
 This script is designed to query and modify the network device settings in a Linux VM that uses Network Manager to control device configurations. This script is used as a VM step in a recovery or replication failover plan.
 
+* This script uses ReIP rules defined in Veeam Recovery Orchestrator. The new version of the script has an added feature of retrieving ReIP rules from the source replication job in Veeam Backup and Replication.
+
 ***NOTE:*** Before executing this script in a production environment, I strongly recommend you:
 
 * Read the Veeam Recovery Orchestrator User Guide
