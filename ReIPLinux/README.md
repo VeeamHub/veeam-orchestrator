@@ -2,7 +2,7 @@
 
 ## Author
 
-Tyson Fewins (tfewins)
+Tyson Fewins (tfewins)\
 Razvan Ionescu 
 
 ## Function
@@ -51,9 +51,9 @@ The scripts are using re-IP rules from VBR replication job or CDP policy to extr
 For example:  
 ![alt text](reip_rule_job.jpg)  
 
-Make sure to enter only the keyword "failover" in description. The script uses the description keywords to identify which re IP rule to extract.  
+Make sure to enter only the keyword "failover" in description. The script uses the description keywords to identify which re-IP rule to extract.  
 
-When using CDP policies, you need to run re-IP during failback. For this, create a second rule in the CDP policy, fill in the required parameters and add in description the keyword "failback".
+For restore plans, create a dummy replication job (a job that you will never run), assign the protected VMs to that job and create a re-IP using the keyword "restore".
 
 
 ## Additional Information
@@ -124,6 +124,11 @@ In the Orchestration plan - Plan Steps
     Desription = Local path on "VbrHostname" where to create logs
     Type = Text
     Default Value = (Set a default value as needed)
+  
+    Name = CurrentPlanState
+    Desription = VRO plan state
+    Type = Text
+    Default Value = %plan_state% (this will pass the plan state at runtime)
  
 ```
 * **ReIPLinux.ps1** Add the following optional Step Parameters if needed

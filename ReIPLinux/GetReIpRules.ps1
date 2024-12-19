@@ -15,6 +15,7 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$CurrentPlanState
 )
+$Version = "0.0.3"
 
 ### Parameter examples for manual testing (without VRO)
 # $VbrCredentialsUsername = "admin" 
@@ -32,7 +33,6 @@ Function Write-Log {
     Add-Content $LogFile -value $str
 }     
 
-$Version = "0.0.2"
 $VbrHostname = "localhost"
 $CurrentPid = ([System.Diagnostics.Process]::GetCurrentProcess()).Id
 
@@ -48,9 +48,8 @@ Write-Log "`tScript: $($MyInvocation.MyCommand.Name)"
 Write-Log "`tVersion: { $($Version) }"
 Write-Log "}"
 
-# with CDP during failback IP address is changed in orginal VM - we need to run reIP scripts during failback to set prod IPs back to original VM
-
-if  (($CurrentPlanState -like "Failover*") -or $CurrentPlanState -like "Failback*" -or $CurrentPlanState -like "Test*") {
+#Check plan state and execute code only during failover, restore or test 
+if  (($CurrentPlanState -like "Failover*") -or $CurrentPlanState -like "Test*" -or $CurrentPlanState -like "Restore*") {
 
 
     # create VBR PS credential
@@ -227,7 +226,7 @@ if  (($CurrentPlanState -like "Failover*") -or $CurrentPlanState -like "Failback
 
     }
 } else {
-    Write-Log "[WARN] Plan state is: $($CurrentPlanState). ReIP rules are processed during failover, failback and testing"
+    Write-Log "[WARN] Plan state is: $($CurrentPlanState). ReIP rules are processed during failover, testing and restore"
     exit
 }
 

@@ -31,8 +31,13 @@ Param(
     $SudoPassRequired = 'true',
 
     [Parameter(Mandatory=$true)]
-    [string]$LogPath
+    [string]$LogPath,
+
+    [Parameter(Mandatory=$true)]
+    [string]$CurrentPlanState
 )
+
+$Version = "0.0.3"
 
 ### Parameter examples for manual testing (without VRO)
 # $GuestOSCredsUsername = "notroot"
@@ -336,7 +341,6 @@ function UpdateVMIPAddresses ($VM, $GuestCredential){
 
 
 #Log file
-$Version = "0.0.2"
 $CurrentPid = ([System.Diagnostics.Process]::GetCurrentProcess()).Id
 
 $LogDir = "$($LogPath)\logs"
@@ -351,123 +355,131 @@ Write-Log "`tScript: $($MyInvocation.MyCommand.Name)"
 Write-Log "`tVersion: { $($Version) }"
 Write-Log "}"
 
-#Script parameters for processing across functions
-$VMNicName = ''
-$VMNicConnection = ''
-$VMNicVerify = $false
-$VMNetDevices = ''
-$success = $false
-if ($SudoRequired -eq 'true') {
-    if ($SudoPassRequired -eq 'true') {
-        $sudotext = "echo $GuestOSCredsPassword | sudo -S "
-    }
-    else {
-        $sudotext = "sudo "
-    }
-}
-else {
-    $sudotext = ''
-}
+#Check plan state and execute code only during failover, restore or test 
+if  (($CurrentPlanState -like "Failover*") -or $CurrentPlanState -like "Test*" -or $CurrentPlanState -like "Restore*") {
 
-#Read ReIP rules from json file
-$VarFileName = "$($LogPath)\logs\ReIpRules-$($SourceVmName).json"
-$reiprules = Get-Content -Raw $VarFileName | ConvertFrom-Json
 
-#Define VM parameters
-$VMtarget = [pscustomobject]@{
-    ServerName = $VMName;
-    origIP = $VMOrigIP;
-    reIPRule = $reiprules.TargetIp;
-    newIP = '';
-    CIDR = ConvertNetmaskToCidr -Netmask $reiprules.TargetSubnet;
-    newMask = '';
-    newGateway = $reiprules.TargetGateway;
-    primaryDNS = $reiprules.TargetDNS.Split(",")[0];
-    secondaryDNS = $reiprules.TargetDNS.Split(",")[1]
-}
-
-#start script
-Write-Log "`nThis script utilizes PowerCLI to connect to vCenter and inject scripts into the Linux guest VM (nmcli) to perform the re-ip actions."
-
-#Check prereqs
-try {
-    PreReqs
-}
-catch {
-    throw "There was an error with the prerequisites"
-}
-
-#Credentials
-Write-Log "`nImporting credentials"
-try{
-    $VMwareCred = GetPSCreds $vCenterServerCredsUsername $vCenterServerCredsPassword
-    $VMUser = GetPSCreds $GuestOSCredsUsername $GuestOSCredsPassword
-} 
-catch {
-    throw "There was an error with the credentials import" 
-}
-
-<#
-    Do not participate and ignore VC certificate warnings
-
-    ** This can be removed or modified to fit the desired outcome **
-#>
-Write-Log "`nSetting PowerCLI configuration"
-try{
-    Set-PowerCLIConfiguration -Scope User -ParticipateInCeip $false -Confirm:$false | Out-Null
-    Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
-} 
-catch {
-    throw "There was an error setting the PowerCLI configuration"
-}
-
-# Connecting to vCenter
-try{
-    ConnectVI $vCenterServer $VMwareCred
-
-    #Ensure you are connected to the correct vCenter
-    if(!$DefaultVIServer -or $DefaultVIServer.Name -ne $vCenterServer) {
-        Write-Log "`tERROR: Connection to vCenter $vCenterServer failed, exiting..`n"
-        exit
-    } else {
-        Write-Log "`tConnection to vCenter $vCenterServer succeeded"
-    }
-} 
-catch {
-    throw "There was an error connecting to the vCenter server using PowerCLI"
-}
-
-#Process ReIPRule to determine target IP
-try {
-    ApplyReIPRule -SourceIpAddress $VMtarget.origIP -ReIpRule $VMtarget.reIPRule
-} 
-catch {
-    throw "Failed to update the target IP based on the ReIP Rule"
-}
-
-# Update VM network configuration
-Write-Log "`nProcessing $($VMtarget.ServerName)"
-try {
-    if ($sudotext -ne '') {
-        Write-Log "`tSudo = True"
-        if ($SudoPassRequired -eq 'false') {
-            Write-Log "`tSudo Password is not required"
+    #Script parameters for processing across functions
+    $VMNicName = ''
+    $VMNicConnection = ''
+    $VMNicVerify = $false
+    $VMNetDevices = ''
+    $success = $false
+    if ($SudoRequired -eq 'true') {
+        if ($SudoPassRequired -eq 'true') {
+            $sudotext = "echo $GuestOSCredsPassword | sudo -S "
+        }
+        else {
+            $sudotext = "sudo "
         }
     }
     else {
-        Write-Log "`tSudo = False"
+        $sudotext = ''
     }
-    UpdateVMIPAddresses $VMtarget $VMUser
-}
-catch {
-    throw "There was an error with the Re-IP function"
-}
 
-#Disconnect from VMware Server session
-Write-Log "Disconnecting from $vCenterServer"
-try {
-    Disconnect-VIServer -Confirm:$false 
+    #Read ReIP rules from json file
+    $VarFileName = "$($LogPath)\logs\ReIpRules-$($SourceVmName).json"
+    $reiprules = Get-Content -Raw $VarFileName | ConvertFrom-Json
+
+    #Define VM parameters
+    $VMtarget = [pscustomobject]@{
+        ServerName = $VMName;
+        origIP = $VMOrigIP;
+        reIPRule = $reiprules.TargetIp;
+        newIP = '';
+        CIDR = ConvertNetmaskToCidr -Netmask $reiprules.TargetSubnet;
+        newMask = '';
+        newGateway = $reiprules.TargetGateway;
+        primaryDNS = $reiprules.TargetDNS.Split(",")[0];
+        secondaryDNS = $reiprules.TargetDNS.Split(",")[1]
+    }
+
+    #start script
+    Write-Log "`nThis script utilizes PowerCLI to connect to vCenter and inject scripts into the Linux guest VM (nmcli) to perform the re-ip actions."
+
+    #Check prereqs
+    try {
+        PreReqs
+    }
+    catch {
+        throw "There was an error with the prerequisites"
+    }
+
+    #Credentials
+    Write-Log "`nImporting credentials"
+    try{
+        $VMwareCred = GetPSCreds $vCenterServerCredsUsername $vCenterServerCredsPassword
+        $VMUser = GetPSCreds $GuestOSCredsUsername $GuestOSCredsPassword
+    } 
+    catch {
+        throw "There was an error with the credentials import" 
+    }
+
+    <#
+        Do not participate and ignore VC certificate warnings
+
+        ** This can be removed or modified to fit the desired outcome **
+    #>
+    Write-Log "`nSetting PowerCLI configuration"
+    try{
+        Set-PowerCLIConfiguration -Scope User -ParticipateInCeip $false -Confirm:$false | Out-Null
+        Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
+    } 
+    catch {
+        throw "There was an error setting the PowerCLI configuration"
+    }
+
+    # Connecting to vCenter
+    try{
+        ConnectVI $vCenterServer $VMwareCred
+
+        #Ensure you are connected to the correct vCenter
+        if(!$DefaultVIServer -or $DefaultVIServer.Name -ne $vCenterServer) {
+            Write-Log "`tERROR: Connection to vCenter $vCenterServer failed, exiting..`n"
+            exit
+        } else {
+            Write-Log "`tConnection to vCenter $vCenterServer succeeded"
+        }
+    } 
+    catch {
+        throw "There was an error connecting to the vCenter server using PowerCLI"
+    }
+
+    #Process ReIPRule to determine target IP
+    try {
+        ApplyReIPRule -SourceIpAddress $VMtarget.origIP -ReIpRule $VMtarget.reIPRule
+    } 
+    catch {
+        throw "Failed to update the target IP based on the ReIP Rule"
+    }
+
+    # Update VM network configuration
+    Write-Log "`nProcessing $($VMtarget.ServerName)"
+    try {
+        if ($sudotext -ne '') {
+            Write-Log "`tSudo = True"
+            if ($SudoPassRequired -eq 'false') {
+                Write-Log "`tSudo Password is not required"
+            }
+        }
+        else {
+            Write-Log "`tSudo = False"
+        }
+        UpdateVMIPAddresses $VMtarget $VMUser
+    }
+    catch {
+        throw "There was an error with the Re-IP function"
+    }
+
+    #Disconnect from VMware Server session
+    Write-Log "Disconnecting from $vCenterServer"
+    try {
+        Disconnect-VIServer -Confirm:$false 
+    }
+    catch {
+        throw "There was an error attempting to disconnect from $vCenterServer"
+    } 
+} else {
+    Write-Log "[WARN] Plan state is: $($CurrentPlanState). ReIP rules are processed during failover, testing and restore"
+    exit
 }
-catch {
-    throw "There was an error attempting to disconnect from $vCenterServer"
-} 
