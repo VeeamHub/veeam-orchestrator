@@ -1,0 +1,2 @@
+# Keep the bytes of the tool exactly as released, so the SHA-256 in the .sha256 file matches on every checkout
+* -text
